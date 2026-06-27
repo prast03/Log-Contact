@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0F2744">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Log Kontak">
+<title>Log Kontak — Rumah Ningrat</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --navy: #0F2744;
+    --blue: #1A56DB;
+    --sky: #3B82F6;
+    --green: #16A34A;
+    --green-bg: #DCFCE7;
+    --green-text: #14532D;
+    --red: #DC2626;
+    --red-bg: #FEE2E2;
+    --red-text: #7F1D1D;
+    --yellow-bg: #FEF3C7;
+    --yellow-text: #78350F;
+    --yellow: #D97706;
+    --gold: #F59E0B;
+    --bg: #F0F4FA;
+    --card: #FFFFFF;
+    --text: #1E293B;
+    --muted: #64748B;
+    --border: #E2E8F0;
+    --wa: #25D366;
+    --wa-dark: #128C7E;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* STATUS BAR SAFE AREA */
+  .status-bar {
+    height: calc(var(--safe-top) + 0px);
+    background: var(--navy);
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--navy);
+    padding: 14px 18px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .app-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--wa); display: flex; align-items: center;
+    justify-content: center; font-size: 20px;
+  }
+  .header h1 { color: #fff; font-size: 16px; font-weight: 700; }
+  .header p { color: rgba(255,255,255,0.5); font-size: 11px; margin-top: 1px; }
+  .total-badge {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gold);
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    background: var(--navy);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 0 18px;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.45);
+    cursor: pointer;
+    border-bottom: 2.5px solid transparent;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .tab.active { color: #fff; border-bottom-color: var(--gold); }
+  .tab-badge {
+    display: none;
+    position: absolute;
+    top: 6px; right: calc(50% - 28px);
+    background: var(--sky);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 1px 6px;
+    min-width: 18px;
+  }
+  .tab-badge.show { display: inline-block; }
+
+  /* MAIN CONTENT */
+  .panel { display: none; padding-bottom: 160px; }
+  .panel.active { display: block; }
+
+  /* FORM CARD */
+  .form-card {
+    background: var(--card);
+    margin: 14px 14px 0;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .form-header {
+    background: #EFF6FF;
+    padding: 11px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1D4ED8;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .form-body { padding: 14px 16px; }
+  .field { margin-bottom: 11px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 5px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 11px 13px;
+    font-size: 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text);
+    background: #fff;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.15s;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--blue);
+  }
+  .field textarea { resize: none; min-height: 72px; font-size: 13px; line-height: 1.5; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .add-btn {
+    width: 100%;
+    margin-top: 14px;
+    padding: 13px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: background 0.15s, transform 0.1s;
+    -webkit-user-select: none;
+  }
+  .add-btn:active { background: #1447c0; transform: scale(0.98); }
+
+  /* LOG LIST */
+  .list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 16px 8px;
+  }
+  .list-title { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .list-count { font-size: 12px; color: var(--blue); font-weight: 600; }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 10px; }
+  .empty-state p { font-size: 14px; }
+
+  /* LOG ITEM */
+  .log-item {
+    background: var(--card);
+    margin: 0 14px 10px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .log-item-top {
+    padding: 13px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+  }
+  .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: #EFF6FF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1D4ED8;
+    flex-shrink: 0;
+  }
+  .log-info { flex: 1; min-width: 0; }
+  .log-name { font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .log-meta { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .log-item-actions {
+    display: flex;
+    border-top: 1px solid var(--border);
+  }
+  .wa-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 11px;
+    background: var(--wa);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .wa-btn:active { background: var(--wa-dark); }
+  .wa-btn.disabled {
+    background: #E2E8F0;
+    color: var(--muted);
+    cursor: default;
+  }
+  .del-btn {
+    width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--red-bg);
+    color: var(--red);
+    border: none;
+    border-left: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.15s;
+  }
+  .del-btn:active { background: var(--red); color: #fff; }
+
+  .log-item-footer {
+    padding: 9px 14px;
+    background: #FAFAFA;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .next-action {
+    font-size: 12px;
+    color: var(--muted);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .next-action span { color: var(--blue); font-weight: 600; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .badge-green { background: var(--green-bg); color: var(--green-text); }
+  .badge-yellow { background: var(--yellow-bg); color: var(--yellow-text); }
+  .badge-red { background: var(--red-bg); color: var(--red-text); }
+  .badge-gray { background: #F1F5F9; color: #475569; }
+
+  /* BOTTOM BAR */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0; right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 12px 14px calc(12px + var(--safe-bottom));
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+  }
+  .recap-btn {
+    flex: 1;
+    padding: 14px;
+    background: var(--wa);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .recap-btn:active { background: var(--wa-dark); transform: scale(0.98); }
+  .reset-btn {
+    width: 50px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .reset-btn:active { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: calc(80px + var(--safe-bottom));
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1E293B;
+    color: #fff;
+    padding: 11px 20px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+    z-index: 200;
+    white-space: nowrap;
+    max-width: 90vw;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* INSTALL BANNER */
+  .install-banner {
+    display: none;
+    background: linear-gradient(135deg, #0F2744, #1A3A6B);
+    margin: 14px 14px 0;
+    border-radius: 14px;
+    padding: 16px;
+    align-items: center;
+    gap: 12px;
+  }
+  .install-banner.show { display: flex; }
+  .install-banner .icon { font-size: 28px; flex-shrink: 0; }
+  .install-banner .text { flex: 1; }
+  .install-banner .text h3 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+  .install-banner .text p { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.4; }
+  .install-btn-pwa {
+    padding: 9px 16px;
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    border-radius: 9px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: opacity 0.15s;
+  }
+  .install-btn-pwa:active { opacity: 0.85; }
+
+  /* MODAL NOMOR ATASAN */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    align-items: flex-end;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: var(--card);
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 18px calc(20px + var(--safe-bottom));
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .modal p { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+  .modal input {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 15px;
+    font-size: 16px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    outline: none;
+    margin-bottom: 12px;
+  }
+  .modal input:focus { border-color: var(--blue); }
+  .modal-btns { display: flex; gap: 10px; }
+  .modal-cancel {
+    flex: 1;
+    padding: 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .modal-send {
+    flex: 2;
+    padding: 13px;
+    background: var(--wa);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+  }
+  .modal-send:active { background: var(--wa-dark); }
+</style>
+</head>
+<body>
+
+<div class="status-bar"></div>
+
+<div class="header">
+  <div class="header-left">
+    <div class="app-icon">📋</div>
+    <div>
+      <h1>Log Kontak</h1>
+      <p>Rumah Ningrat Property</p>
+    </div>
+  </div>
+  <div class="total-badge" id="total-badge">0 kontak</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" id="tab-int" onclick="switchTab('int')">
+    📱 Internal
+    <span class="tab-badge" id="badge-int"></span>
+  </div>
+  <div class="tab" id="tab-ext" onclick="switchTab('ext')">
+    🌐 Leads External
+    <span class="tab-badge" id="badge-ext"></span>
+  </div>
+</div>
+
+<!-- PANEL INTERNAL -->
+<div class="panel active" id="panel-int">
+
+  <div id="install-banner" class="install-banner">
+    <div class="icon">📲</div>
+    <div class="text">
+      <h3>Install sebagai App</h3>
+      <p>Tambah ke homescreen untuk akses cepat seperti app Android!</p>
+    </div>
+    <button class="install-btn-pwa" id="install-btn">Install</button>
+  </div>
+
+  <div class="form-card">
+    <div class="form-header">➕ Tambah Kontak Internal</div>
+    <div class="form-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Nama</label>
+          <input type="text" id="int-nama" placeholder="Budi Santoso" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>No. WhatsApp</label>
+          <input type="tel" id="int-wa" placeholder="08123456789" inputmode="numeric">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Kategori</label>
+          <select id="int-kat">
+            <option>Teman Dekat</option>
+            <option>Keluarga</option>
+            <option>Rekan Kerja</option>
+            <option>Tetangga</option>
+            <option>Komunitas</option>
+            <option>Kontak Umum</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="int-status">
+            <option value="Tertarik">Tertarik</option>
+            <option value="Belum Balas">Belum Balas</option>
+            <option value="Minta Info Lagi">Minta Info Lagi</option>
+            <option value="Tidak Minat">Tidak Minat</option>
+            <option value="Referral">Referral</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Next Action</label>
+        <input type="text" id="int-action" placeholder="cth. Kirim brosur besok pagi" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>Pesan WA Otomatis</label>
+        <textarea id="int-msg">Halo [Nama], apa kabar? Ada info menarik soal properti investasi yang mau aku share. Boleh aku cerita sebentar? 🙏</textarea>
+      </div>
+      <button class="add-btn" onclick="addInt()">➕ Tambah ke Log</button>
+    </div>
+  </div>
+
+  <div class="list-header">
+    <span class="list-title">Log Hari Ini</span>
+    <span class="list-count" id="int-list-count"></span>
+  </div>
+  <div id="int-list">
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <p>Belum ada kontak.<br>Tambahkan yang pertama!</p>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL EXTERNAL -->
+<div class="panel" id="panel-ext">
+  <div class="form-card">
+    <div class="form-header">➕ Tambah Leads External</div>
+    <div class="form-body">
+      <div class="field-row">
+        <div class="field">
+          <label>Nama Leads</label>
+          <input type="text" id="ext-nama" placeholder="Dewi Susanti" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>No. WhatsApp</label>
+          <input type="tel" id="ext-wa" placeholder="08123456789" inputmode="numeric">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Sumber</label>
+          <select id="ext-sumber">
+            <option>Rumah123</option>
+            <option>OLX</option>
+            <option>Lamudi</option>
+            <option>Instagram / Ads</option>
+            <option>Marketplace</option>
+            <option>Referral</option>
+            <option>Walk-in</option>
+            <option>Lainnya</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>BANT</label>
+          <select id="ext-bant">
+            <option value="Lengkap">Lengkap</option>
+            <option value="Sebagian">Sebagian</option>
+            <option value="Belum">Belum</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Jam Masuk</label>
+          <input type="time" id="ext-jam">
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="ext-status">
+            <option value="Dihubungi">Dihubungi ✅</option>
+            <option value="Belum Balas">Belum Balas ⏳</option>
+            <option value="Appointment">Appointment 📅</option>
+            <option value="Tidak Tertarik">Tidak Tertarik ❌</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Pesan WA Otomatis</label>
+        <textarea id="ext-msg">Halo [Nama], saya dari Tim Rumah Ningrat. Terima kasih sudah tertarik! Boleh saya tanya beberapa hal untuk bantu cari properti yang sesuai? 🙏</textarea>
+      </div>
+      <button class="add-btn" onclick="addExt()">➕ Tambah ke Log</button>
+    </div>
+  </div>
+
+  <div class="list-header">
+    <span class="list-title">Log Leads Hari Ini</span>
+    <span class="list-count" id="ext-list-count"></span>
+  </div>
+  <div id="ext-list">
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <p>Belum ada leads.<br>Tambahkan yang pertama!</p>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar" id="bottom-bar-int">
+  <button class="recap-btn" onclick="showModal('int')">
+    <span>📲</span> Kirim Rekap ke Atasan
+  </button>
+  <button class="reset-btn" onclick="resetLog(curTab)" title="Reset log">🗑️</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL NOMOR ATASAN -->
+<div class="modal-bg" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3>📲 Kirim Rekap via WA</h3>
+    <p>Masukkan nomor WhatsApp atasan kamu:</p>
+    <input type="tel" id="modal-num" placeholder="cth. 08123456789" inputmode="numeric">
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Batal</button>
+      <button class="modal-send" onclick="sendRekap()">
+        <span>✉️</span> Kirim Sekarang
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let dataInt = JSON.parse(localStorage.getItem('logInt') || '[]');
+let dataExt = JSON.parse(localStorage.getItem('logExt') || '[]');
+let curTab = 'int';
+let rekapType = 'int';
+let deferredPrompt = null;
+
+// ===== INIT =====
+document.getElementById('ext-jam').value = new Date().toTimeString().slice(0,5);
+renderAll();
+
+// ===== TAB SWITCH =====
+function switchTab(tab) {
+  curTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+}
+
+// ===== HELPERS =====
+function initials(name) {
+  return name.trim().split(' ').slice(0,2).map(w => w[0]||'').join('').toUpperCase() || '?';
+}
+function waNum(num) {
+  let n = num.replace(/\D/g,'');
+  if(n.startsWith('0')) n = '62' + n.slice(1);
+  return n;
+}
+function waLink(num, msg) {
+  return 'https://wa.me/' + waNum(num) + '?text=' + encodeURIComponent(msg);
+}
+function badgeClass(s) {
+  const green = ['Tertarik','Lengkap','Dihubungi','Appointment','Referral'];
+  const red = ['Tidak Minat','Tidak Tertarik','Belum'];
+  if(green.includes(s)) return 'badge-green';
+  if(red.includes(s)) return 'badge-red';
+  return 'badge-yellow';
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+function saveData() {
+  localStorage.setItem('logInt', JSON.stringify(dataInt));
+  localStorage.setItem('logExt', JSON.stringify(dataExt));
+}
+function getToday() {
+  const d = new Date();
+  const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'];
+  return d.getDate() + ' ' + months[d.getMonth()];
+}
+
+// ===== ADD INTERNAL =====
+function addInt() {
+  const nama = document.getElementById('int-nama').value.trim();
+  if(!nama) { showToast('⚠️ Nama wajib diisi!'); return; }
+  dataInt.push({
+    id: Date.now(),
+    nama,
+    wa: document.getElementById('int-wa').value.trim(),
+    kat: document.getElementById('int-kat').value,
+    status: document.getElementById('int-status').value,
+    action: document.getElementById('int-action').value.trim(),
+    msg: document.getElementById('int-msg').value.trim(),
+    tgl: getToday()
+  });
+  document.getElementById('int-nama').value = '';
+  document.getElementById('int-wa').value = '';
+  document.getElementById('int-action').value = '';
+  saveData();
+  renderInt();
+  showToast('✅ ' + nama + ' ditambahkan');
+  window.scrollTo({top: document.getElementById('int-list').offsetTop - 60, behavior: 'smooth'});
+}
+
+// ===== ADD EXTERNAL =====
+function addExt() {
+  const nama = document.getElementById('ext-nama').value.trim();
+  if(!nama) { showToast('⚠️ Nama leads wajib diisi!'); return; }
+  dataExt.push({
+    id: Date.now(),
+    nama,
+    wa: document.getElementById('ext-wa').value.trim(),
+    sumber: document.getElementById('ext-sumber').value,
+    bant: document.getElementById('ext-bant').value,
+    jam: document.getElementById('ext-jam').value,
+    status: document.getElementById('ext-status').value,
+    msg: document.getElementById('ext-msg').value.trim()
+  });
+  document.getElementById('ext-nama').value = '';
+  document.getElementById('ext-wa').value = '';
+  saveData();
+  renderExt();
+  showToast('✅ Leads ' + nama + ' ditambahkan');
+  window.scrollTo({top: document.getElementById('ext-list').offsetTop - 60, behavior: 'smooth'});
+}
+
+// ===== DELETE =====
+function deleteItem(type, id) {
+  if(!confirm('Hapus kontak ini?')) return;
+  if(type === 'int') { dataInt = dataInt.filter(e => e.id !== id); renderInt(); }
+  else { dataExt = dataExt.filter(e => e.id !== id); renderExt(); }
+  saveData();
+  showToast('🗑️ Kontak dihapus');
+}
+
+// ===== RESET =====
+function resetLog(tab) {
+  const label = tab === 'int' ? 'Log Internal' : 'Log Leads External';
+  if(!confirm('Hapus semua ' + label + '?')) return;
+  if(tab === 'int') { dataInt = []; renderInt(); }
+  else { dataExt = []; renderExt(); }
+  saveData();
+  showToast('🗑️ ' + label + ' direset');
+}
+
+// ===== RENDER INTERNAL =====
+function renderInt() {
+  const container = document.getElementById('int-list');
+  const countEl = document.getElementById('int-list-count');
+  const badge = document.getElementById('badge-int');
+
+  if(!dataInt.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>Belum ada kontak.<br>Tambahkan yang pertama!</p></div>';
+    countEl.textContent = '';
+    badge.classList.remove('show');
+    updateTotal();
+    return;
+  }
+
+  countEl.textContent = dataInt.length + ' kontak';
+  badge.textContent = dataInt.length;
+  badge.classList.add('show');
+
+  container.innerHTML = dataInt.map(e => {
+    const waBtn = e.wa
+      ? `<a class="wa-btn" href="${waLink(e.wa, e.msg.replace('[Nama]', e.nama))}" target="_blank">💬 Chat WA</a>`
+      : `<button class="wa-btn disabled">Nomor belum diisi</button>`;
+    return `<div class="log-item">
+      <div class="log-item-top">
+        <div class="avatar">${initials(e.nama)}</div>
+        <div class="log-info">
+          <div class="log-name">${e.nama}</div>
+          <div class="log-meta">${e.kat} · ${e.tgl}${e.wa ? ' · ' + e.wa : ''}</div>
+        </div>
+      </div>
+      <div class="log-item-footer">
+        <div class="next-action"><span>→</span> ${e.action || 'Belum ada next action'}</div>
+        <span class="badge ${badgeClass(e.status)}">${e.status}</span>
+      </div>
+      <div class="log-item-actions">
+        ${waBtn}
+        <button class="del-btn" onclick="deleteItem('int',${e.id})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  updateTotal();
+}
+
+// ===== RENDER EXTERNAL =====
+function renderExt() {
+  const container = document.getElementById('ext-list');
+  const countEl = document.getElementById('ext-list-count');
+  const badge = document.getElementById('badge-ext');
+
+  if(!dataExt.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>Belum ada leads.<br>Tambahkan yang pertama!</p></div>';
+    countEl.textContent = '';
+    badge.classList.remove('show');
+    updateTotal();
+    return;
+  }
+
+  countEl.textContent = dataExt.length + ' leads';
+  badge.textContent = dataExt.length;
+  badge.classList.add('show');
+
+  container.innerHTML = dataExt.map(e => {
+    const waBtn = e.wa
+      ? `<a class="wa-btn" href="${waLink(e.wa, e.msg.replace('[Nama]', e.nama))}" target="_blank">💬 Chat WA</a>`
+      : `<button class="wa-btn disabled">Nomor belum diisi</button>`;
+    return `<div class="log-item">
+      <div class="log-item-top">
+        <div class="avatar">${initials(e.nama)}</div>
+        <div class="log-info">
+          <div class="log-name">${e.nama}</div>
+          <div class="log-meta">${e.sumber}${e.jam ? ' · ' + e.jam : ''}${e.wa ? ' · ' + e.wa : ''}</div>
+        </div>
+      </div>
+      <div class="log-item-footer">
+        <div style="display:flex;gap:5px;flex-wrap:wrap;">
+          <span class="badge ${badgeClass(e.status)}">${e.status}</span>
+          <span class="badge ${badgeClass(e.bant)}">BANT: ${e.bant}</span>
+        </div>
+      </div>
+      <div class="log-item-actions">
+        ${waBtn}
+        <button class="del-btn" onclick="deleteItem('ext',${e.id})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  updateTotal();
+}
+
+function renderAll() { renderInt(); renderExt(); }
+
+function updateTotal() {
+  const t = dataInt.length + dataExt.length;
+  document.getElementById('total-badge').textContent = t + ' kontak';
+}
+
+// ===== MODAL REKAP =====
+function showModal(type) {
+  rekapType = type;
+  const list = type === 'int' ? dataInt : dataExt;
+  if(!list.length) { showToast('⚠️ Log masih kosong!'); return; }
+  const saved = localStorage.getItem('nomorAtasan') || '';
+  document.getElementById('modal-num').value = saved;
+  document.getElementById('modal').classList.add('show');
+  setTimeout(() => document.getElementById('modal-num').focus(), 300);
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+function sendRekap() {
+  const nomor = document.getElementById('modal-num').value.trim();
+  if(!nomor) { showToast('⚠️ Nomor atasan wajib diisi!'); return; }
+  localStorage.setItem('nomorAtasan', nomor);
+
+  const list = rekapType === 'int' ? dataInt : dataExt;
+  const today = new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  let teks = '';
+
+  if(rekapType === 'int') {
+    teks = `📋 *REKAP LOG INTERNAL*\n📅 ${today}\n\n`;
+    list.forEach((e,i) => {
+      teks += `${i+1}. *${e.nama}* (${e.kat})\n   Status: ${e.status}\n   Next Action: ${e.action||'-'}\n\n`;
+    });
+  } else {
+    teks = `📋 *REKAP LEADS EXTERNAL*\n📅 ${today}\n\n`;
+    list.forEach((e,i) => {
+      teks += `${i+1}. *${e.nama}* - ${e.sumber}${e.jam?' ('+e.jam+')':''}\n   Status: ${e.status} | BANT: ${e.bant}\n\n`;
+    });
+  }
+  teks += `Total: ${list.length} kontak\n_Tim Sales Rumah Ningrat_`;
+
+  closeModal();
+  window.open('https://wa.me/' + waNum(nomor) + '?text=' + encodeURIComponent(teks), '_blank');
+}
+
+// ===== PWA INSTALL =====
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').classList.add('show');
+});
+
+document.getElementById('install-btn').addEventListener('click', async () => {
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const result = await deferredPrompt.userChoice;
+  if(result.outcome === 'accepted') {
+    document.getElementById('install-banner').classList.remove('show');
+    showToast('🎉 Aplikasi berhasil diinstall!');
+  }
+  deferredPrompt = null;
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').classList.remove('show');
+});
+
+// ===== SERVICE WORKER =====
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
